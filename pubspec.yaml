@@ -1,0 +1,47 @@
+name: mi_app_expriment2
+description: Smart TV Manager - Control remoto para Smart TVs
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Dependencias principales para funcionalidad real
+  dio: ^5.3.2                    # Cliente HTTP para APIs de TVs
+  shared_preferences: ^2.2.2     # Almacenamiento local
+  uuid: ^4.0.0                   # Generación de IDs únicos
+  http: ^1.1.0                   # Cliente HTTP adicional
+  web_socket_channel: ^2.4.0     # WebSocket para Samsung/LG
+  logger: ^2.4.0
+
+  # Dependencias UI
+  cupertino_icons: ^1.0.2
+  provider: ^6.1.2                   # Manejo de estado
+  intl: ^0.18.0                      # Formateo de fechas y números
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  mockito: ^5.4.4
+  build_runner: ^2.4.6
+
+flutter:
+  uses-material-design: true
+
+  # Puedes agregar assets aquí si los necesitas
+  # assets:
+  #   - images/
+  #   - icons/
+
+  # Puedes agregar fuentes personalizadas aquí
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts:Schyler-Italic.ttf
+  #         style: italic
