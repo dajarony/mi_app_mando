@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Sensitive files - Never commit these
+.env
+*.env
+backen2/.env
+backen2/credenciales/
+*.pem
+*.key
+key.properties
+upload-keystore.jks
