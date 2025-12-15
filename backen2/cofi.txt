@@ -1,0 +1,74 @@
+$env:PYTHONPATH = "$PSScriptRoot\modules;$env:PYTHONPATH"
+uvicorn core2.core_dajarony.entradas.api_app:app --reload --host 0.0.0.0 --port 8000
+
+
+Cómo usar este script
+
+Guarda el contenido en un archivo llamado test-endpoints.ps1
+Modifica las variables al inicio del script según tu configuración:
+
+$baseUrl: URL base de tu API (por defecto http://localhost:8000)
+$apiKey: Tu clave API para autenticación
+$testDevice: ID de un dispositivo existente para pruebas
+
+Ejecuta el script desde PowerShell:
+powershell    .\test-endpoints.ps1
+
+from ..Modelos.tv_device import TVDevice
+Los dos puntos .. significan "subir un nivel" (desde servicios a logica) y luego entrar a Modelos.  
+
+
+(venv) PS C:\Users\gatak\Desktop\TV\verciones\backen2> Invoke-WebRequest -Uri "http://localhost:8000/tv/register" -Method POST -Headers @{
+>>      "Content-Type"="application/json"} -Body '{"device_id": "philips_tv_01", "name": "Mi Philips TV"             >>      , "ip": "192.168.0.41", "type": "philips_tv", "port": 1925}'                                                                                                                                                                      
+                                                                                                                     
+StatusCode        : 200                                                                                              StatusDescription : OK                                                                                               Content           : {"status":"success","message":"Dispositivo 'Mi Philips TV' registrado                                                correctamente","device":{"device_id":"philips_tv_01","name":"Mi Philips                          
+                    TV","ip":"192.168.0.41","type":"philips_tv","port":1925,"l...
+RawContent        : HTTP/1.1 200 OK
+                    Content-Length: 228
+                    Content-Type: application/json
+                    Date: Thu, 03 Jul 2025 16:50:45 GMT
+                    Server: uvicorn
+
+                    {"status":"success","message":"Dispositivo 'Mi Philips TV' registrado corr...
+Forms             : {}
+Headers           : {[Content-Length, 228], [Content-Type, application/json], [Date, Thu, 03 Jul 2025 16:50:45 
+                    GMT], [Server, uvicorn]}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 228
+
+
+
+(venv) PS C:\Users\gatak\Desktop\TV\verciones\backen2> Invoke-WebRequest -Uri "http://localhost:8000/tv/cast-url" -Method POST -Headers @{
+>>      "Content-Type"="application/json"} -Body '{"device_id": "philips_tv_01", "url":
+>>      "https://www.youtube.com/watch?v=wXB8Uczd8j8"}'
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"status":"success","message":"URL enviada al navegador del TV: https://www.youtube.com/watch?v= 
+                    wXB8Uczd8j8","device_id":"philips_tv_01","url":"https://www.youtube.com/watch?v=wXB8Uczd8j8"}    
+RawContent        : HTTP/1.1 200 OK
+                    Content-Length: 189
+                    Content-Type: application/json
+                    Date: Thu, 03 Jul 2025 16:53:01 GMT
+                    Server: uvicorn
+
+                    {"status":"success","message":"URL enviada al navegador del TV: https://ww...
+Forms             : {}
+Headers           : {[Content-Length, 189], [Content-Type, application/json], [Date, Thu, 03 Jul 2025 16:53:01       
+                    GMT], [Server, uvicorn]}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 189
+
+
+
+(venv) PS "C:\Users\gatak\Desktop\TV\verciones\backen2"
+
+
+python -m uvicorn core2.core_dajarony.entradas.api_app:app --reload --host 0.0.0.0 --port 8000

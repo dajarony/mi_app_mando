@@ -1,0 +1,10 @@
+sumetv:
+  rutas:
+    - ruta: "/tv/discover"
+      controlador: "tv_controller:discover"
+    - ruta: "/tv/mirror"
+      controlador: "tv_controller:mirror"
+    - ruta: "/tv/open-app"
+      controlador: "tv_controller:open_app"
+    - ruta: "/tv/cast-url"
+      controlador: "tv_controller:cast_url"

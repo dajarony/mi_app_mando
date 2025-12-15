@@ -1,0 +1,260 @@
+# core_dajarony/mapa-global/arquitectura.yaml
+# Mapa Global de Arquitectura Core Dajarony
+# Versión: 1.0.0
+# Actualización: 20/04/2025
+
+sistema:
+  nombre: Core Dajarony
+  version: 1.0.0
+  arquitectura: SUME (Sistema Universal de Modularización Estratégica)
+  descripcion: Sistema base para construcción de aplicaciones modulares
+
+componentes:
+  entradas:
+    main:
+      archivo: entradas/main.py
+      tipo: punto_de_entrada
+      descripcion: Punto de entrada principal del sistema
+      dependencias:
+        - logica/core_manager.py
+        - logica/event_bus.py
+        - logica/logger.py
+      eventos:
+        emite:
+          - system:starting
+          - system:started
+          - system:stopping
+          - system:stopped
+    
+    health_endpoints:
+      archivo: entradas/health_endpoints.py
+      tipo: servidor_http
+      descripcion: Endpoints para verificación de salud del sistema
+      puertos: [8080]
+      rutas:
+        - path: /health
+          descripcion: Estado completo del sistema
+        - path: /ready
+          descripcion: Verificación de disponibilidad
+        - path: /live
+          descripcion: Verificación básica de vida
+
+  logica:
+    container:
+      archivo: logica/container.py
+      tipo: contenedor_di
+      descripcion: Contenedor de inyección de dependencias
+      relaciones:
+        usado_por: [todos]
+    
+    event_bus:
+      archivo: logica/event_bus.py
+      tipo: bus_de_eventos
+      descripcion: Sistema de publicación/suscripción para comunicación
+      patrones:
+        - prefix: module:
+          descripcion: Eventos de módulos
+        - prefix: system:
+          descripcion: Eventos del sistema
+        - prefix: circuit:
+          descripcion: Eventos de circuit breaker
+        - prefix: telemetry:
+          descripcion: Eventos de telemetría
+    
+    store:
+      archivo: logica/store.py
+      tipo: almacenamiento_clave_valor
+      descripcion: Almacén persistente con TTL
+      capacidades:
+        - operaciones_basicas: [get, set, delete]
+        - búsqueda_por_patrón
+        - TTL automático
+        - persistencia opcional
+    
+    config:
+      archivo: logica/config.py
+      tipo: gestor_configuracion
+      descripcion: Gestión de configuración del sistema
+      fuentes:
+        - archivos YAML/JSON
+        - variables de entorno
+        - argumentos de línea de comandos
+    
+    logger:
+      archivo: logica/logger.py
+      tipo: sistema_logging
+      descripcion: Sistema de registro estructurado
+      niveles: [debug, info, warning, error, critical]
+      salidas:
+        - consola
+        - archivo
+        - event_bus
+    
+    validator:
+      archivo: logica/validator.py
+      tipo: validador_datos
+      descripcion: Validación de datos con esquemas
+      soporta:
+        - tipos primitivos
+        - objetos complejos
+        - listas y diccionarios
+        - validaciones personalizadas
+    
+    interaction_manager:
+      archivo: logica/interaction_manager.py
+      tipo: mediador
+      descripcion: Mediador de comunicación entre módulos
+      características:
+        - control de acceso
+        - trazabilidad
+        - métricas de rendimiento
+        - integración con circuit breaker
+    
+    core_manager:
+      archivo: logica/core_manager.py
+      tipo: coordinador_central
+      descripcion: Gestión del ciclo de vida del sistema
+      responsabilidades:
+        - inicialización
+        - coordinación
+        - cierre ordenado
+        - gestión de estados
+    
+    circuit_breaker:
+      archivo: logica/circuit_breaker.py
+      tipo: patrón_resiliencia
+      descripcion: Protección contra fallos en cascada
+      estados: [closed, open, half_open]
+      configuracion:
+        max_failures: 3
+        reset_timeout: 30
+    
+    telemetry_collector:
+      archivo: logica/telemetry_collector.py
+      tipo: recolector_metricas
+      descripcion: Recopilación y procesamiento de telemetría
+      metricas:
+        - sistema
+        - componentes
+        - interacciones
+        - errores
+      alertas:
+        umbrales_configurables: true
+        tipos: [warning, critical]
+    
+    version_manager:
+      archivo: logica/version_manager.py
+      tipo: gestor_versiones
+      descripcion: Gestión de versiones de componentes
+      funciones:
+        - control de compatibilidad
+        - migración de datos
+        - gestión de deprecaciones
+
+  salidas:
+    output_handler:
+      archivo: salidas/output_handler.py
+      tipo: gestor_salidas
+      descripcion: Formateo y enrutamiento de resultados
+      formatos: [json, yaml, text, csv, xml]
+      destinos: [consola, archivo, event_bus, store]
+    
+    metrics_exporter:
+      archivo: salidas/metrics_exporter.py
+      tipo: exportador_metricas
+      descripcion: Exportación de métricas a sistemas externos
+      formatos:
+        - prometheus
+        - statsd
+        - influxdb
+        - opentelemetry
+        - json
+
+  contratos:
+    types:
+      archivo: contratos/types.py
+      tipo: definiciones
+      descripcion: Tipos y estructuras de datos del sistema
+      incluye:
+        - enumeraciones
+        - dataclasses
+        - constantes globales
+    
+    security:
+      archivo: contratos/security.py
+      tipo: seguridad
+      descripcion: Contratos y modelos de seguridad
+      elementos:
+        - niveles de permiso
+        - contextos de seguridad
+        - políticas de acceso
+        - control de acceso
+
+  herramientas:
+    doc_generator:
+      archivo: herramientas/doc_generator.py
+      tipo: generador_documentacion
+      descripcion: Generación automática de documentación desde SUME DOCBLOCKs
+      salidas:
+        - markdown
+        - html
+        - diagramas
+    
+    version_manager:
+      archivo: herramientas/version_manager.py
+      tipo: control_versiones
+      descripcion: Gestión de versiones del proyecto
+      capacidades:
+        - versionado semántico
+        - generación de changelog
+        - control de compatibilidad
+    
+    diagnostics_dashboard:
+      archivo: herramientas/diagnostics_dashboard.py
+      tipo: dashboard_web
+      descripcion: Visualización en tiempo real del estado del sistema
+      vistas:
+        - estado general
+        - métricas
+        - logs
+        - circuit breakers
+        - interacciones
+
+flujos_principales:
+  inicializacion:
+    descripcion: Arranque del sistema
+    secuencia:
+      1: main.py parsea argumentos
+      2: Crea Container
+      3: Inicializa servicios básicos
+      4: Configura CoreManager
+      5: Inicia ciclo principal
+  
+  interaccion_modulos:
+    descripcion: Comunicación entre módulos
+    secuencia:
+      1: Módulo A solicita interacción
+      2: InteractionManager verifica permisos
+      3: CircuitBreaker evalúa estado
+      4: EventBus transmite mensaje
+      5: Módulo B procesa
+      6: TelemetryCollector registra métricas
+  
+  manejo_errores:
+    descripcion: Gestión de fallos
+    secuencia:
+      1: Error detectado
+      2: CircuitBreaker evalúa gravedad
+      3: Registro en Logger
+      4: Evento de error emitido
+      5: Fallback si está disponible
+      6: Alerta si umbral superado
+
+patrones_arquitecturales:
+  - Inyección de Dependencias
+  - Event-Driven Architecture
+  - Circuit Breaker
+  - Mediator
+  - Observer
+  - Repository
+  - Factory

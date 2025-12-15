@@ -1,0 +1,177 @@
+# core_dajarony/mapa-global/security_model.yaml
+# Modelo de Seguridad Core Dajarony
+# Versión: 1.0.0
+# Actualización: 20/04/2025
+
+niveles_permisos:
+  - nombre: NONE
+    valor: 0
+    descripcion: Sin permisos de acceso
+  
+  - nombre: READ
+    valor: 1
+    descripcion: Permiso de solo lectura
+  
+  - nombre: WRITE
+    valor: 2
+    descripcion: Permiso de lectura y escritura
+  
+  - nombre: ADMIN
+    valor: 3
+    descripcion: Permiso administrativo
+  
+  - nombre: SUPER_ADMIN
+    valor: 4
+    descripcion: Permiso de superadministrador
+
+tipos_acceso:
+  - nombre: PUBLIC
+    descripcion: Acceso público sin restricciones
+    requisitos: []
+  
+  - nombre: INTERNAL
+    descripcion: Acceso solo para componentes internos
+    requisitos:
+      - autenticacion_componente
+  
+  - nombre: PRIVATE
+    descripcion: Acceso privado restringido
+    requisitos:
+      - autenticacion_componente
+      - autorizacion_especifica
+  
+  - nombre: RESTRICTED
+    descripcion: Acceso altamente restringido
+    requisitos:
+      - autenticacion_componente
+      - autorizacion_especifica
+      - credenciales_adicionales
+
+matriz_permisos:
+  eventos:
+    system:*:
+      nivel_requerido: WRITE
+      roles_permitidos: [system_admin, core_manager]
+    
+    module:call:*:
+      nivel_requerido: READ
+      roles_permitidos: [*]
+    
+    module:handle:*:
+      nivel_requerido: WRITE
+      roles_permitidos: [módulo_específico]
+    
+    circuit:state_change:
+      nivel_requerido: ADMIN
+      roles_permitidos: [circuit_manager, system_admin]
+    
+    telemetry:*:
+      nivel_requerido: READ
+      roles_permitidos: [monitor, admin]
+    
+    system:alert:
+      nivel_requerido: SUPER_ADMIN
+      roles_permitidos: [alert_handler, system_admin]
+
+recursos_protegidos:
+  store:
+    system.config:
+      nivel_acceso: ADMIN
+      tipo_acceso: RESTRICTED
+      audit: true
+    
+    telemetry.*:
+      nivel_acceso: WRITE
+      tipo_acceso: INTERNAL
+      audit: false
+    
+    circuit.*:
+      nivel_acceso: ADMIN
+      tipo_acceso: PRIVATE
+      audit: true
+  
+  archivos:
+    configuracion:
+      nivel_acceso: SUPER_ADMIN
+      tipo_acceso: RESTRICTED
+      cifrado: true
+    
+    logs:
+      nivel_acceso: WRITE
+      tipo_acceso: INTERNAL
+      rotacion: true
+  
+  apis:
+    health_endpoints:
+      /health:
+        nivel_acceso: READ
+        tipo_acceso: PUBLIC
+      
+      /ready:
+        nivel_acceso: READ
+        tipo_acceso: PUBLIC
+      
+      /live:
+        nivel_acceso: READ
+        tipo_acceso: PUBLIC
+
+politicas_seguridad:
+  credenciales:
+    rotacion: 90 días
+    formato: "identificador:secreto"
+    almacenamiento: cifrado
+    transmision: TLS
+  
+  tokens:
+    tipo: JWT
+    algoritmo: RS256
+    duracion: 1 hora
+    refresh: permitido
+  
+  audit:
+    nivel_global: WARNING
+    retención: 90 días
+    almacenamiento: persistente
+    eventos_auditados:
+      - autenticacion fallida
+      - cambios de configuración
+      - acceso a recursos restringidos
+      - errores de seguridad
+
+roles_sistema:
+  system_admin:
+    nivel: SUPER_ADMIN
+    permisos: [*]
+    descripcion: Administrador del sistema con acceso total
+  
+  component_manager:
+    nivel: ADMIN
+    permisos: [gestionar_componentes, configurar_sistema]
+    descripcion: Gestión de componentes y configuración
+  
+  monitor:
+    nivel: READ
+    permisos: [ver_metricas, leer_logs]
+    descripcion: Monitoreo del sistema
+  
+  developer:
+    nivel: WRITE
+    permisos: [crear_componentes, actualizar_codigo]
+    descripcion: Desarrollo y mantenimiento
+  
+  auditor:
+    nivel: READ
+    permisos: [ver_audit_logs, generar_reportes]
+    descripcion: Auditoría de seguridad
+
+excepciones_seguridad:
+  emergencias:
+    activacion: manual
+    duracion: 1 hora
+    permisos: elevados temporalmente
+    notificacion: todos los administradores
+  
+  mantenimiento:
+    programacion: requerida
+    permisos: elevados para scripts específicos
+    audit: incrementado
