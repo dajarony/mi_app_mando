@@ -45,17 +45,17 @@ jobs:
       run: flutter test
       continue-on-error: true
 
-    - name: Build APK (Debug - para testing)
-      run: flutter build apk --debug
+    - name: Build APK Release (para Play Store)
+      run: flutter build apk --release --no-shrink
 
     - name: Build App Bundle (Release - para Play Store)
-      run: flutter build appbundle --release
+      run: flutter build appbundle --release --no-shrink
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: smart-tv-manager-apk
-        path: build/app/outputs/flutter-apk/app-debug.apk
+        path: build/app/outputs/flutter-apk/app-release.apk
         retention-days: 30
 
     - name: Upload App Bundle artifact
