@@ -24,7 +24,7 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.0'
+        flutter-version: '3.24.0'
         channel: 'stable'
         cache: false
 
@@ -33,10 +33,14 @@ jobs:
         echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
         echo "flutter.sdk=$FLUTTER_ROOT" >> android/local.properties
 
-    - name: Clean Gradle cache
+    - name: Force Gradle 8.4 wrapper
       run: |
-        rm -rf ~/.gradle/caches/
-        rm -rf ~/.gradle/wrapper/
+        echo "distributionBase=GRADLE_USER_HOME" > android/gradle/wrapper/gradle-wrapper.properties
+        echo "distributionPath=wrapper/dists" >> android/gradle/wrapper/gradle-wrapper.properties
+        echo "zipStoreBase=GRADLE_USER_HOME" >> android/gradle/wrapper/gradle-wrapper.properties
+        echo "zipStorePath=wrapper/dists" >> android/gradle/wrapper/gradle-wrapper.properties
+        echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-all.zip" >> android/gradle/wrapper/gradle-wrapper.properties
+        cat android/gradle/wrapper/gradle-wrapper.properties
 
     - name: Get dependencies
       run: flutter pub get
