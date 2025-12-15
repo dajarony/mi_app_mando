@@ -134,7 +134,7 @@ class _TVRegistrationCardState extends State<TVRegistrationCard> {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
     final textPrimary =
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 

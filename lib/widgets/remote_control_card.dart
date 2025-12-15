@@ -8,7 +8,7 @@ class RemoteControlCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final errorColor = Theme.of(context).colorScheme.error;
     final textPrimary =
@@ -121,7 +121,7 @@ class RemoteControlCard extends StatelessWidget {
 
   Widget _buildRemoteButton(BuildContext context, String label, IconData icon,
       String command, Color color) {
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
 
     return Expanded(
       child: Container(

@@ -19,7 +19,7 @@ class SelectedTVCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isScanning = context.watch<TVProvider>().isScanning;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final errorColor = Theme.of(context).colorScheme.error;
     final textPrimary =

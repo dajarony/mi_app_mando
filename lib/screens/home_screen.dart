@@ -426,7 +426,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final tvProvider = context.watch<TVProvider>();
     final isScanning = tvProvider.isScanning;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
 
     return Scaffold(
       appBar: AppBar(

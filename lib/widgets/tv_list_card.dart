@@ -19,7 +19,7 @@ class TVListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final textPrimary =
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
@@ -114,7 +114,7 @@ class TVListCard extends StatelessWidget {
 
   Widget _buildTVListItem(BuildContext context, SmartTV tv) {
     final isSelected = selectedTV?.id == tv.id;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final errorColor = Theme.of(context).colorScheme.error;
     final textPrimary =

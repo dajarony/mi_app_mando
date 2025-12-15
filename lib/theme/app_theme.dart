@@ -278,6 +278,12 @@ class AppTheme {
       ),
       iconTheme: IconThemeData(color: Color(0xFF0077BE)),
     ),
+    inputDecorationTheme: lightTheme.inputDecorationTheme.copyWith(
+      fillColor: const Color(0xFFE3F2FD),
+    ),
+    cardTheme: lightTheme.cardTheme.copyWith(
+      color: const Color(0xFFE3F2FD),
+    ),
   );
 
   static final ThemeData forestGreenTheme = lightTheme.copyWith(
@@ -296,6 +302,12 @@ class AppTheme {
         fontWeight: FontWeight.w600,
       ),
       iconTheme: IconThemeData(color: Color(0xFF2E7D32)),
+    ),
+    inputDecorationTheme: lightTheme.inputDecorationTheme.copyWith(
+      fillColor: const Color(0xFFE8F5E9),
+    ),
+    cardTheme: lightTheme.cardTheme.copyWith(
+      color: const Color(0xFFE8F5E9),
     ),
   );
 
@@ -316,6 +328,12 @@ class AppTheme {
       ),
       iconTheme: IconThemeData(color: Color(0xFFE91E63)),
     ),
+    inputDecorationTheme: lightTheme.inputDecorationTheme.copyWith(
+      fillColor: const Color(0xFFFCE4EC),
+    ),
+    cardTheme: lightTheme.cardTheme.copyWith(
+      color: const Color(0xFFFCE4EC),
+    ),
   );
 
   static final ThemeData royalPurpleTheme = lightTheme.copyWith(
@@ -334,6 +352,12 @@ class AppTheme {
         fontWeight: FontWeight.w600,
       ),
       iconTheme: IconThemeData(color: Color(0xFF6A1B9A)),
+    ),
+    inputDecorationTheme: lightTheme.inputDecorationTheme.copyWith(
+      fillColor: const Color(0xFFF3E5F5),
+    ),
+    cardTheme: lightTheme.cardTheme.copyWith(
+      color: const Color(0xFFF3E5F5),
     ),
   );
 

@@ -13,7 +13,7 @@ class NeumorphicNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
 
     return Container(
       decoration: AppTheme.neumorphicDecoration(
@@ -99,7 +99,7 @@ class _NeumorphicNavItemState extends State<_NeumorphicNavItem> with SingleTicke
   Widget build(BuildContext context) {
     final bool isSelected = widget.index == widget.currentIndex;
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final backgroundColor = Theme.of(context).colorScheme.surface;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final textColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
 

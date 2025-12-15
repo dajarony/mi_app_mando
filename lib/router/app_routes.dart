@@ -124,6 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Theme Selector Card
           Card(
             elevation: 2,
+            color: Theme.of(context).colorScheme.surface,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: ListTile(
               leading: const Icon(Icons.palette_outlined, size: 32),
