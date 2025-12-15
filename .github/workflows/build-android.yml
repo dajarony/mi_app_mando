@@ -26,12 +26,18 @@ jobs:
       with:
         flutter-version: '3.24.0'
         channel: 'stable'
-        cache: true
+        cache: false
 
     - name: Create local.properties
       run: |
         echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
         echo "flutter.sdk=$FLUTTER_ROOT" >> android/local.properties
+
+    - name: Clean Gradle cache
+      run: |
+        rm -rf ~/.gradle/caches/
+        rm -rf ~/.gradle/wrapper/
+        cd android && ./gradlew --stop || true
 
     - name: Get dependencies
       run: flutter pub get
