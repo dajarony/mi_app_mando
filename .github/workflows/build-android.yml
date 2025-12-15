@@ -24,7 +24,7 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.24.0'
+        flutter-version: '3.19.0'
         channel: 'stable'
         cache: false
 
@@ -37,7 +37,6 @@ jobs:
       run: |
         rm -rf ~/.gradle/caches/
         rm -rf ~/.gradle/wrapper/
-        cd android && ./gradlew --stop || true
 
     - name: Get dependencies
       run: flutter pub get
