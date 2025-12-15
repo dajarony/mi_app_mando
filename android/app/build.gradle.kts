@@ -54,9 +54,9 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Desactivado porque R8 elimina clases de Play Core que Flutter necesita
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
