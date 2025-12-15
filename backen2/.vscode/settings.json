@@ -1,7 +1,0 @@
-{
-    "python.analysis.extraPaths": ["./core2", "modules", "./modules"],
-    "python.analysis.typeCheckingMode": "off",
-    "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.autoSearchPaths": true,  
-}
-  
