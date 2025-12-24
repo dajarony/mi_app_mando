@@ -22,11 +22,50 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
   bool _isInitializing = true;
   String? _initializationError;
 
-  // Color base para el diseño neuromórfico
-  final Color _baseColor = const Color(0xFFF8FAFC); // bg-[#f8fafc]
-
   // Estado para controlar la visibilidad del teclado numérico
   bool _showNumberPad = false;
+
+  // Obtener colores del tema actual
+  Color _getBaseColor(BuildContext context) {
+    return Theme.of(context).scaffoldBackgroundColor;
+  }
+
+  Color _getCardColor(BuildContext context) {
+    // Usar colorScheme.surface que los temas de colores actualizan correctamente
+    return Theme.of(context).colorScheme.surface;
+  }
+
+  Color _getIconColor(BuildContext context) {
+    return Theme.of(context).colorScheme.onSurface;
+  }
+
+  Color _getPrimaryColor(BuildContext context) {
+    return Theme.of(context).colorScheme.primary;
+  }
+
+  Color _getShadowDark(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
+    // Crear sombra oscura basada en el color de superficie
+    if (brightness == Brightness.dark) {
+      return Colors.black54;
+    }
+    // Para temas de colores, oscurecer el color de superficie
+    final hsl = HSLColor.fromColor(surfaceColor);
+    return hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
+  }
+
+  Color _getShadowLight(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
+    // Crear sombra clara basada en el color de superficie
+    if (brightness == Brightness.dark) {
+      return Colors.grey.shade700;
+    }
+    // Para temas de colores claros, aclarar el color de superficie
+    final hsl = HSLColor.fromColor(surfaceColor);
+    return hsl.withLightness((hsl.lightness + 0.1).clamp(0.0, 1.0)).toColor();
+  }
 
   @override
   void initState() {
@@ -91,28 +130,34 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
   }
 
   // Estilos neuromórficos para los botones
-  BoxDecoration _neuromorphicDecoration({
+  BoxDecoration _neuromorphicDecoration(
+    BuildContext context, {
     bool isPressed = false,
     double borderRadius = 36.0, // Para botones circulares
     Color? pressedColor, // Color al presionar
   }) {
+    final baseColor = _getCardColor(context);
+    final shadowDark = _getShadowDark(context);
+    final shadowLight = _getShadowLight(context);
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return BoxDecoration(
       color: isPressed
-          ? (pressedColor ?? Colors.green.shade100)
-          : _baseColor, // Tono verde al presionar
+          ? (pressedColor ?? primaryColor.withAlpha(50))
+          : baseColor,
       borderRadius: BorderRadius.circular(borderRadius),
       boxShadow: isPressed
           ? [
               // Sombra interior para efecto presionado
               BoxShadow(
-                color: Colors.grey.shade400,
+                color: shadowDark,
                 offset: const Offset(2, 2),
                 blurRadius: 5,
                 spreadRadius: 1,
               ),
-              const BoxShadow(
-                color: Colors.white,
-                offset: Offset(-2, -2),
+              BoxShadow(
+                color: shadowLight,
+                offset: const Offset(-2, -2),
                 blurRadius: 5,
                 spreadRadius: 1,
               ),
@@ -120,14 +165,14 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
           : [
               // Sombra exterior para efecto cóncavo (más pronunciado)
               BoxShadow(
-                color: Colors.grey.shade400, // Sombra oscura
+                color: shadowDark,
                 offset: const Offset(6, 6),
                 blurRadius: 12,
                 spreadRadius: 2,
               ),
-              const BoxShadow(
-                color: Colors.white, // Sombra clara
-                offset: Offset(-6, -6),
+              BoxShadow(
+                color: shadowLight,
+                offset: const Offset(-6, -6),
                 blurRadius: 12,
                 spreadRadius: 2,
               ),
@@ -146,6 +191,7 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
     bool isPressed = false;
     return StatefulBuilder(
       builder: (context, setState) {
+        final iconColor = textColor ?? _getIconColor(context);
         return GestureDetector(
           onTapDown: (_) {
             setState(() {
@@ -168,6 +214,7 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
             width: size,
             height: size,
             decoration: _neuromorphicDecoration(
+              context,
               isPressed: isPressed,
               borderRadius: borderRadius,
               pressedColor: pressedColor,
@@ -175,13 +222,16 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
             alignment: Alignment.center,
             child: DefaultTextStyle(
               style: TextStyle(
-                color: textColor ?? const Color(0xFF64748B), // #64748b
+                color: iconColor,
                 fontSize: size == 72.0
                     ? 32.0
                     : (size == 44.8 ? 20.0 : 16.0), // wire-btn-lg, md, sm
                 fontWeight: FontWeight.normal,
               ),
-              child: child,
+              child: IconTheme(
+                data: IconThemeData(color: iconColor),
+                child: child,
+              ),
             ),
           ),
         );
@@ -191,25 +241,21 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget bodyContent;
-    if (_isInitializing) {
-      bodyContent = _buildLoadingState();
-    } else if (_apiService == null) {
-      bodyContent = _buildErrorState();
-    } else {
-      bodyContent = _buildRemoteContent();
-    }
+    // Siempre mostrar el mando, con un banner de estado si no hay TV
+    final Widget bodyContent = _buildRemoteContent(context);
+    final baseColor = _getBaseColor(context);
+    final iconColor = _getIconColor(context);
 
     return Scaffold(
-      backgroundColor: _baseColor, // bg-[#f8fafc]
+      backgroundColor: baseColor,
       appBar: AppBar(
-        backgroundColor: _baseColor, // Color de fondo del AppBar
+        backgroundColor: baseColor,
         elevation: 0, // Sin sombra
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
-            color: Color(0xFF64748B),
-          ), // Color del icono
+            color: iconColor,
+          ),
           onPressed: () {
             Navigator.pop(context); // Vuelve a la pantalla anterior
           },
@@ -218,30 +264,103 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
           widget.tvName != null
               ? 'Control: ${widget.tvName}'
               : 'Control Remoto',
-          style: const TextStyle(
-            color: Color(0xFF64748B), // Color del título
+          style: TextStyle(
+            color: iconColor,
           ),
         ),
         centerTitle: true,
       ),
-      body: bodyContent,
+      body: Column(
+        children: [
+          // Banner de estado de conexión
+          _buildConnectionBanner(),
+          // Contenido del mando
+          Expanded(child: bodyContent),
+        ],
+      ),
     );
   }
 
-  Widget _buildRemoteContent() {
+  Widget _buildConnectionBanner() {
+    if (_isInitializing) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        color: Colors.blue.shade100,
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Conectando...',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_apiService == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        color: Colors.orange.shade100,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+            const SizedBox(width: 8),
+            const Flexible(
+              child: Text(
+                'Sin TV conectada - Selecciona una TV',
+                style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _retryInitialization,
+              child: const Icon(Icons.refresh, color: Colors.orange, size: 20),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      color: Colors.green.shade100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.check_circle, color: Colors.green, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            'Conectado a ${widget.tvName ?? "TV"}',
+            style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRemoteContent(BuildContext context) {
+    final cardColor = _getCardColor(context);
+    final shadowColor = _getShadowDark(context);
+
     return SafeArea(
       child: Center(
         child: Container(
           width: 370,
           constraints: const BoxConstraints(minHeight: 670),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(24.0), // rounded-3xl
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withAlpha(
-                  (255 * 0.1).round(),
-                ), // shadow-2xl
+                color: shadowColor.withAlpha((255 * 0.3).round()),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
