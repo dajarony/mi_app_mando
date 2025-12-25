@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mi_app_expriment2/services/philips_tv_direct_service.dart';
+import 'package:mi_app_expriment2/services/wake_on_lan_service.dart';
 import 'package:mi_app_expriment2/providers/tv_provider.dart';
 
 class RemoteControlScreen extends StatefulWidget {
@@ -21,6 +22,10 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
   PhilipsTvDirectService? _apiService;
   bool _isInitializing = true;
   String? _initializationError;
+
+  // Servicio Wake-on-LAN
+  final WakeOnLanService _wolService = WakeOnLanService();
+  bool _isSendingWol = false;
 
   // Estado para controlar la visibilidad del teclado numérico
   bool _showNumberPad = false;
@@ -127,6 +132,67 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
 
   void _sendKey(String key) {
     _apiService?.sendKey(key);
+  }
+
+  /// Maneja el botón de power de forma inteligente:
+  /// - Si hay conexión con la TV → envía Standby (apaga)
+  /// - Si no hay conexión + hay MAC → envía WoL (enciende)
+  Future<void> _handleSmartPower() async {
+    // Obtener la TV seleccionada para acceder a su MAC
+    final tvProvider = context.read<TVProvider>();
+    final selectedTV = tvProvider.selectedTV;
+    
+    // Si tenemos conexión API, enviamos Standby (apagar)
+    if (_apiService != null) {
+      _sendKey('Standby');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enviando comando de apagado...'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+      return;
+    }
+    
+    // Si no hay API pero tenemos MAC, intentamos WoL (encender)
+    if (selectedTV != null && selectedTV.macAddress.isNotEmpty) {
+      if (_wolService.isValidMacAddress(selectedTV.macAddress)) {
+        setState(() => _isSendingWol = true);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Enviando Wake-on-LAN para encender TV...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        
+        final success = await _wolService.wakeUpWithRetry(selectedTV.macAddress);
+        
+        if (mounted) {
+          setState(() => _isSendingWol = false);
+          
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('✓ Wake-on-LAN enviado. La TV debería encenderse en unos segundos.'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+        return;
+      }
+    }
+    
+    // Sin API ni MAC válida
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('TV no conectada. Enciéndela manualmente o configura la MAC address.'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
 
   // Estilos neuromórficos para los botones
@@ -377,12 +443,18 @@ class _RemoteControlScreenState extends State<RemoteControlScreen> {
                   children: [
                     _buildNeuromorphicButton(
                       size: 72.0,
-                      textColor: const Color(0xFFEF4444),
-                      onPressed: () => _sendKey('Standby'),
-                      child: const Icon(
-                        Icons.power_settings_new,
-                        size: 32.0,
-                      ), // Icono de power
+                      textColor: _isSendingWol ? Colors.green : const Color(0xFFEF4444),
+                      onPressed: _handleSmartPower,
+                      child: _isSendingWol 
+                        ? const SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(strokeWidth: 3),
+                          )
+                        : const Icon(
+                            Icons.power_settings_new,
+                            size: 32.0,
+                          ), // Icono de power
                       pressedColor:
                           Colors.red.shade100, // Tono rojo al presionar
                     ),
