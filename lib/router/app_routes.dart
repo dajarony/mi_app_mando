@@ -5,6 +5,7 @@ import '../screens/home_screen.dart';
 import '../screens/remote_control_screen.dart';
 import '../screens/theme/theme_selector_screen.dart';
 import '../providers/settings_provider.dart';
+import '../theme/app_theme.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -113,27 +114,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     context.watch<SettingsProvider>();
+    final backgroundColor = Theme.of(context).colorScheme.surface;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text('Configuraciones'),
+        backgroundColor: backgroundColor,
+        elevation: 0,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Theme Selector Card
-          Card(
-            elevation: 2,
-            color: Theme.of(context).colorScheme.surface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          // Theme Selector Card - Neumorphic
+          Container(
+            decoration: AppTheme.convexDecoration(
+              backgroundColor: backgroundColor,
+              borderRadius: 16,
+            ),
             child: ListTile(
-              leading: const Icon(Icons.palette_outlined, size: 32),
-              title: const Text(
-                'Tema de la Aplicación',
-                style: TextStyle(fontWeight: FontWeight.w600),
+              contentPadding: const EdgeInsets.all(16),
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: AppTheme.concaveDecoration(
+                  backgroundColor: backgroundColor,
+                  borderRadius: 12,
+                ),
+                child: Icon(Icons.palette_outlined, size: 28, color: Theme.of(context).colorScheme.primary),
               ),
-              subtitle: const Text('Personaliza los colores de la app'),
-              trailing: const Icon(Icons.chevron_right),
+              title: Text(
+                'Tema de la Aplicación',
+                style: TextStyle(fontWeight: FontWeight.w600, color: textColor),
+              ),
+              subtitle: Text(
+                'Personaliza los colores de la app',
+                style: TextStyle(color: textColor.withValues(alpha: 0.7)),
+              ),
+              trailing: Icon(Icons.chevron_right, color: textColor),
               onTap: () {
                 Navigator.pushNamed(context, AppRoutes.themeSelector);
               },
@@ -142,71 +160,176 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Network Scan Configuration Section
-          const Text(
-            'Escaneo de Red',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _subnetController,
-            decoration: const InputDecoration(
-              labelText: 'Subred a escanear',
-              hintText: '192.168.1',
-              border: OutlineInputBorder(),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: AppTheme.concaveDecoration(
+              backgroundColor: backgroundColor,
+              borderRadius: 16,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: AppTheme.concaveDecoration(
+                        backgroundColor: backgroundColor,
+                        borderRadius: 8,
+                      ),
+                      child: Icon(Icons.radar, color: Theme.of(context).colorScheme.primary),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Escaneo de Red',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  decoration: AppTheme.concaveDecoration(
+                    backgroundColor: backgroundColor,
+                    borderRadius: 12,
+                  ),
+                  child: TextField(
+                    controller: _subnetController,
+                    style: TextStyle(color: textColor),
+                    decoration: const InputDecoration(
+                      labelText: 'Subred a escanear',
+                      hintText: '192.168.1',
+                      prefixIcon: Icon(Icons.router),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: AppTheme.concaveDecoration(
+                          backgroundColor: backgroundColor,
+                          borderRadius: 12,
+                        ),
+                        child: TextField(
+                          controller: _startIpController,
+                          style: TextStyle(color: textColor),
+                          decoration: const InputDecoration(
+                            labelText: 'IP Inicial',
+                            prefixIcon: Icon(Icons.first_page),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        decoration: AppTheme.concaveDecoration(
+                          backgroundColor: backgroundColor,
+                          borderRadius: 12,
+                        ),
+                        child: TextField(
+                          controller: _endIpController,
+                          style: TextStyle(color: textColor),
+                          decoration: const InputDecoration(
+                            labelText: 'IP Final',
+                            prefixIcon: Icon(Icons.last_page),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _startIpController,
-                  decoration: const InputDecoration(
-                    labelText: 'IP Inicial',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextField(
-                  controller: _endIpController,
-                  decoration: const InputDecoration(
-                    labelText: 'IP Final',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
 
           // TV Configuration Section
-          const Text(
-            'Configuración de TV',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _philipsIpController,
-            decoration: const InputDecoration(
-              labelText: 'IP de la TV',
-              hintText: '192.168.1.100',
-              border: OutlineInputBorder(),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: AppTheme.concaveDecoration(
+              backgroundColor: backgroundColor,
+              borderRadius: 16,
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: AppTheme.concaveDecoration(
+                        backgroundColor: backgroundColor,
+                        borderRadius: 8,
+                      ),
+                      child: Icon(Icons.tv, color: Theme.of(context).colorScheme.primary),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Configuración de TV',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  decoration: AppTheme.concaveDecoration(
+                    backgroundColor: backgroundColor,
+                    borderRadius: 12,
+                  ),
+                  child: TextField(
+                    controller: _philipsIpController,
+                    style: TextStyle(color: textColor),
+                    decoration: const InputDecoration(
+                      labelText: 'IP de la TV',
+                      hintText: '192.168.1.100',
+                      prefixIcon: Icon(Icons.settings_ethernet),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                ),
+              ],
+            ),
           ),
+          
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _saveSettings,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+          
+          // Save Button - Neumorphic
+          Container(
+            decoration: AppTheme.convexDecoration(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              borderRadius: 12,
             ),
-            child: const Text('Guardar Toda la Configuración'),
+            child: ElevatedButton(
+              onPressed: _saveSettings,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Guardar Toda la Configuración',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+            ),
           ),
+          const SizedBox(height: 32),
         ],
       ),
     );
