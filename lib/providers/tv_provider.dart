@@ -63,6 +63,11 @@ class TVProvider extends ChangeNotifier {
     try {
       await _loadTVsFromStorage();
       await _loadSelectedTVFromStorage();
+      
+      // Si no hay TVs registradas, añadir una TV de demo para mostrar cómo se ve
+      if (_tvs.isEmpty) {
+        await _addDemoTV();
+      }
     } catch (error, stackTrace) {
       _setError('Error al inicializar las TVs: $error');
       _logger.e('Error al inicializar las TVs', error: error, stackTrace: stackTrace);
@@ -71,6 +76,28 @@ class TVProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  /// Añade una TV de demostración para que el usuario vea cómo se ve
+  Future<void> _addDemoTV() async {
+    final demoTV = SmartTV(
+      id: 'demo_tv_001',
+      name: 'TV Sala (Demo)',
+      brand: TVBrand.philips,
+      ip: '192.168.1.100',
+      port: 1925,
+      room: 'Sala de estar',
+      macAddress: 'AA:BB:CC:DD:EE:FF',
+      model: 'Android TV Demo',
+      isOnline: false,
+      isRegistered: true,
+      isPaired: false,
+    );
+    
+    _tvs.add(demoTV);
+    await _saveTVsToStorage();
+    await selectTV(demoTV.id);
+    _logger.i('Demo TV added for first-time users');
   }
 
   // Gestión de TVs
