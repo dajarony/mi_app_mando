@@ -186,14 +186,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // TV Configuration Section
           const Text(
-            'Configuración de TV Philips',
+            'Configuración de TV',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _philipsIpController,
             decoration: const InputDecoration(
-              labelText: 'IP de la TV Philips',
+              labelText: 'IP de la TV',
               hintText: '192.168.1.100',
               border: OutlineInputBorder(),
             ),

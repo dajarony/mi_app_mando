@@ -184,7 +184,7 @@ class _TVRegistrationCardState extends State<TVRegistrationCard> {
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Nombre de la TV',
-                  hintText: 'Mi TV Philips',
+                  hintText: 'Mi Smart TV',
                   helperText: 'Dale un nombre fácil de recordar',
                   prefixIcon: Icon(Icons.tv),
                   border: InputBorder.none,
