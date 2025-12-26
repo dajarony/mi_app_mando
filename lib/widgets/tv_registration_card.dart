@@ -22,6 +22,7 @@ class _TVRegistrationCardState extends State<TVRegistrationCard> {
   final _nameController = TextEditingController();
   final _ipController = TextEditingController();
   final _portController = TextEditingController(text: '1925');
+  final _macController = TextEditingController();
 
   TVBrand _selectedBrand = TVBrand.philips;
   String _selectedRoom = 'Sala de Estar';
@@ -31,6 +32,7 @@ class _TVRegistrationCardState extends State<TVRegistrationCard> {
     _nameController.dispose();
     _ipController.dispose();
     _portController.dispose();
+    _macController.dispose();
     super.dispose();
   }
 
@@ -38,6 +40,7 @@ class _TVRegistrationCardState extends State<TVRegistrationCard> {
     _nameController.clear();
     _ipController.clear();
     _portController.text = '1925';
+    _macController.clear();
     setState(() {
       _selectedBrand = TVBrand.philips;
       _selectedRoom = 'Sala de Estar';
@@ -69,6 +72,8 @@ class _TVRegistrationCardState extends State<TVRegistrationCard> {
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final macText = _macController.text.trim();
+    
     final newTV = SmartTV(
       name: _nameController.text.trim(),
       brand: _selectedBrand,
@@ -76,6 +81,7 @@ class _TVRegistrationCardState extends State<TVRegistrationCard> {
       port: int.tryParse(_portController.text) ?? 8080,
       room: _selectedRoom,
       protocol: _getProtocolForBrand(_selectedBrand),
+      macAddress: macText,
     );
 
     await widget.onRegister(newTV);
@@ -314,6 +320,26 @@ class _TVRegistrationCardState extends State<TVRegistrationCard> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            // Campo MAC Address (opcional)
+            Container(
+              decoration: AppTheme.concaveDecoration(
+                backgroundColor: backgroundColor,
+                borderRadius: 12,
+              ),
+              child: TextFormField(
+                controller: _macController,
+                decoration: const InputDecoration(
+                  labelText: 'MAC Address (opcional)',
+                  hintText: 'AA:BB:CC:DD:EE:FF',
+                  helperText: 'Para encender la TV cuando está apagada (Wake-on-LAN)',
+                  prefixIcon: Icon(Icons.wifi_tethering),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(16),
+                ),
+                textCapitalization: TextCapitalization.characters,
+              ),
             ),
             const SizedBox(height: 24),
             SizedBox(
