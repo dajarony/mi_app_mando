@@ -492,24 +492,111 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ],
               ),
             )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSelectedTVCard(),
-                  const SizedBox(height: 20),
-                  if (_selectedTV != null && _selectedTV!.isOnline)
-                    _buildRemoteControlSection(),
-                  if (_selectedTV != null && _selectedTV!.isOnline)
-                    const SizedBox(height: 20),
-                  _buildTVsList(),
-                  const SizedBox(height: 20),
-                  _buildManualRegistrationForm(),
-                  const SizedBox(height: 100),
-                ],
-              ),
+          : Column(
+              children: [
+                // Banner de progreso de escaneo
+                if (isScanning)
+                  _buildScanProgressBanner(tvProvider),
+                
+                // Contenido principal
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSelectedTVCard(),
+                        const SizedBox(height: 20),
+                        if (_selectedTV != null && _selectedTV!.isOnline)
+                          _buildRemoteControlSection(),
+                        if (_selectedTV != null && _selectedTV!.isOnline)
+                          const SizedBox(height: 20),
+                        _buildTVsList(),
+                        const SizedBox(height: 20),
+                        _buildManualRegistrationForm(),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
+    );
+  }
+
+  /// Banner que muestra el progreso del escaneo de red
+  Widget _buildScanProgressBanner(TVProvider tvProvider) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final progress = tvProvider.scanProgress;
+    final completedIps = tvProvider.scanCompletedIps;
+    final totalIps = tvProvider.scanTotalIps;
+    final foundCount = tvProvider.scanFoundCount;
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(alpha: 0.1),
+        border: Border(
+          bottom: BorderSide(
+            color: primaryColor.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Escaneando red... $completedIps/$totalIps IPs',
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (foundCount > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '$foundCount encontrada${foundCount > 1 ? 's' : ''}',
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: primaryColor.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+              minHeight: 4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
