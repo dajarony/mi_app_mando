@@ -40,7 +40,6 @@ import 'package:mi_app_expriment2/services/network_service.dart';
 import 'package:mi_app_expriment2/services/storage_service.dart';
 import 'package:mi_app_expriment2/services/tv_remote_service.dart';
 import 'package:mi_app_expriment2/theme/app_theme.dart';
-import 'package:mi_app_expriment2/widgets/network_scanner.dart';
 import 'package:mi_app_expriment2/widgets/remote_control_card.dart';
 import 'package:mi_app_expriment2/widgets/selected_tv_card.dart';
 import 'package:mi_app_expriment2/widgets/tv_list_card.dart';
@@ -85,22 +84,12 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       await _storageService.initialize();
 
-      // Cargar TVs guardadas
-      final savedTVs = await _storageService.loadTVs();
-      final selectedTVId = _storageService.getSelectedTVId();
-
-      setState(() {
-        _registeredTVs = savedTVs;
-        if (selectedTVId != null && _registeredTVs.isNotEmpty) {
-          try {
-            _selectedTV =
-                _registeredTVs.firstWhere((tv) => tv.id == selectedTVId);
-          } catch (e) {
-            _selectedTV =
-                _registeredTVs.isNotEmpty ? _registeredTVs.first : null;
-          }
-        }
-      });
+      // Inicializar TVProvider (esto añade la TV demo si no hay TVs)
+      final tvProvider = context.read<TVProvider>();
+      await tvProvider.initialize();
+      
+      // Sincronizar desde TVProvider para obtener todas las TVs (incluyendo la demo)
+      _syncFromProvider(tvProvider);
 
       // Verificar estado de TVs si hay alguna registrada
       if (_registeredTVs.isNotEmpty) {
@@ -482,10 +471,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildSelectedTVCard(),
-                  const SizedBox(height: 20),
-                  NetworkScanner(
-                    onScanComplete: _syncFromProvider,
-                  ),
                   const SizedBox(height: 20),
                   if (_selectedTV != null && _selectedTV!.isOnline)
                     _buildRemoteControlSection(),
