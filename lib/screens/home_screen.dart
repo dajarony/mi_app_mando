@@ -55,7 +55,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final NetworkService _networkService = NetworkService();
   final TVRemoteService _remoteService = TVRemoteService();
   final StorageService _storageService = StorageService();
@@ -64,9 +64,13 @@ class _HomeScreenState extends State<HomeScreen> {
   SmartTV? _selectedTV;
   bool _isLoading = false;
   bool _isRegistering = false;
+  
+  // Animación para el botón de escaneo
+  late AnimationController _scanAnimationController;
 
   @override
   void dispose() {
+    _scanAnimationController.dispose();
     _remoteService.closeAllConnections();
     _networkService.dispose();
     super.dispose();
@@ -75,6 +79,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    
+    // Inicializar animación de escaneo (rotación infinita)
+    _scanAnimationController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
+    
     _initializeApp();
   }
 
@@ -145,11 +156,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (tvProvider.isScanning) {
       tvProvider.cancelScan();
+      _scanAnimationController.stop();
       _showInfoMessage('Escaneo cancelado');
       return;
     }
 
+    // Iniciar animación de rotación
+    _scanAnimationController.repeat();
+
     final summary = await tvProvider.scanNetwork(context);
+    
+    // Detener animación
+    _scanAnimationController.stop();
+    _scanAnimationController.reset();
+    
     _syncFromProvider(tvProvider);
 
     if (summary.hasError) {
@@ -446,10 +466,17 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             tooltip: 'Configuraciones',
           ),
-          IconButton(
-            icon: Icon(isScanning ? Icons.stop : Icons.radar),
-            onPressed: _scanForTVs,
-            tooltip: isScanning ? 'Cancelar escaneo' : 'Escanear TVs',
+          // Botón de escaneo con animación
+          RotationTransition(
+            turns: _scanAnimationController,
+            child: IconButton(
+              icon: Icon(
+                isScanning ? Icons.stop_circle_outlined : Icons.radar,
+                color: isScanning ? Theme.of(context).colorScheme.primary : null,
+              ),
+              onPressed: _scanForTVs,
+              tooltip: isScanning ? 'Cancelar escaneo' : 'Escanear TVs',
+            ),
           ),
         ],
       ),
